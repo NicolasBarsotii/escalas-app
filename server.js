@@ -22,19 +22,19 @@ if (!fs.existsSync(DB_PATH)) {
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// CORREÇÃO: caminho absoluto para a pasta public
+app.use(express.static(path.join(__dirname, 'public')));
 
 const readDB = () => JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
 const writeDB = (data) => fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 
 // ================= ROTAS DE COLUNAS (SEMANAS) =================
 
-// Buscar todas as colunas e escalas
 app.get('/api/columns', (req, res) => {
     res.json(readDB().columns);
 });
 
-// Criar nova coluna
 app.post('/api/columns', (req, res) => {
     const db = readDB();
     const newColumn = { 
@@ -47,7 +47,6 @@ app.post('/api/columns', (req, res) => {
     res.status(201).json(newColumn);
 });
 
-// Apagar uma coluna
 app.delete('/api/columns/:columnId', (req, res) => {
     const db = readDB();
     const initialLength = db.columns.length;
@@ -63,7 +62,6 @@ app.delete('/api/columns/:columnId', (req, res) => {
 
 // ================= ROTAS DE EVENTOS (CARTÕES) =================
 
-// Criar um novo evento em uma coluna
 app.post('/api/columns/:columnId/events', (req, res) => {
     const db = readDB();
     const column = db.columns.find(c => c.id === req.params.columnId);
@@ -82,7 +80,6 @@ app.post('/api/columns/:columnId/events', (req, res) => {
     res.status(201).json(newEvent);
 });
 
-// Atualizar um evento
 app.put('/api/columns/:columnId/events/:eventId', (req, res) => {
     const db = readDB();
     const column = db.columns.find(c => c.id === req.params.columnId);
@@ -96,7 +93,6 @@ app.put('/api/columns/:columnId/events/:eventId', (req, res) => {
     res.json(column.events[eventIndex]);
 });
 
-// Apagar um evento
 app.delete('/api/columns/:columnId/events/:eventId', (req, res) => {
     const db = readDB();
     const column = db.columns.find(c => c.id === req.params.columnId);
